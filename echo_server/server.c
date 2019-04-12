@@ -83,7 +83,7 @@ int serve(int port)
 		close(sockfd);
 		return 1;
 	}
-	printf("Server started on %s:%d\n", inet_ntoa(server_address.sin_addr), ntohs(port));
+	printf("Server started on %s:%d\n", inet_ntoa(server_address.sin_addr), port);
 	
 	if (worker(sockfd)) {
 		fprintf(stderr, "Cannot connect\n");
