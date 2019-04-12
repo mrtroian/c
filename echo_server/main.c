@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "server.h"
 
 int main(int argc, char **argv)
@@ -15,8 +16,10 @@ int main(int argc, char **argv)
 		port = atoi(argv[1]);
 	}
 
-	while (serve(port) && --tries)
+	while (serve(port) && --tries) {
 		fprintf(stderr, "Relaunching...\n");
+		sleep(1);
+	}
 
 	if (!(tries))
 		fprintf(stderr, "Cannot start the server.\n");

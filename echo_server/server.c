@@ -13,9 +13,8 @@ char *msgrev(char *str)
 	char *s2 = str;
 	char c = *str;
 
-	while (c >= 32) {
+	while (c >= 32)
 		c = *(++s2 + 1);
-	}
 
 	while (s2 > s1) {
 		c = *s1;
@@ -25,7 +24,7 @@ char *msgrev(char *str)
 	return str;
 }
 
-int listener(int sockfd)
+int worker(int sockfd)
 {
 	char recvbuff[1024];
 	char sendbuff[1024];
@@ -37,10 +36,8 @@ int listener(int sockfd)
 		listen(sockfd, 1);
 		client_socket_fd = accept(sockfd, NULL, NULL);
 
-		if (client_socket_fd == -1) {
-			fprintf(stderr, "Cannot connect\n");
+		if (client_socket_fd == -1)
 			return 1;
-		}
 		send(client_socket_fd, "Connection succeed.\n", 21, 0);
 		printf("New connection established.\n");
 
@@ -87,7 +84,12 @@ int serve(int port)
 		return 1;
 	}
 	printf("Server started on %s:%d\n", inet_ntoa(server_address.sin_addr), ntohs(port));
-	listener(sockfd);
+	
+	if (worker(sockfd)) {
+		fprintf(stderr, "Cannot connect\n");
+		close(sockfd);
+		return 1;
+	}
 	close(sockfd);
 	return 0;
 }
