@@ -13,6 +13,10 @@ char *msgrev(char *str)
 	char *s2 = str;
 	char c = *str;
 
+	/*
+	 * Finding the closest newline, end of line, or any other tabulation
+	 * It will be treated as end of string
+	 */
 	while (c >= 32)
 		c = *(++s2 + 1);
 
@@ -26,9 +30,9 @@ char *msgrev(char *str)
 
 int worker(int sockfd)
 {
-	char recvbuff[1024];
-	char sendbuff[1024];
-	int client_socket_fd;
+	char recvbuff[1024];	/* buffer for recieved message */
+	char sendbuff[1024];	/* buffer for message to be sent */
+	int client_socket_fd;	/* client's socket descriptor */
 	
 	memset(recvbuff, 0, 1024);
 
@@ -38,10 +42,12 @@ int worker(int sockfd)
 
 		if (client_socket_fd == -1)
 			return 1;
+		/* sending first message to connected client */
 		send(client_socket_fd, "Connection succeed.\n", 21, 0);
 		printf("New connection established.\n");
 
 		while ((recv(client_socket_fd, &recvbuff, 1024, 0) > 0)) {
+			/* each iteration both buffers will be cleared */
 			memset(sendbuff, 0, 1024);
 			msgrev(recvbuff);
 			strcpy(sendbuff, recvbuff);
@@ -56,17 +62,19 @@ int worker(int sockfd)
 
 int serve(int port)
 {
-	struct sockaddr_in server_address;
-	int connstate;
-	int sockfd;
+	struct sockaddr_in server_address;	/* structure to store server configuration */
+	int connstate;						/* connection state */
+	int sockfd;							/* server's socket */
 	int yes = 1;
 
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	/* creating socket */
+	sockfd = socket(AF_INET, SOCK_STREAM, 0)
 	
 	if (sockfd == -1) {
 		fprintf(stderr, "Socket creation error.\n");
 		return 1;
 	}
+	/* configuring server */
 	server_address.sin_family = AF_INET;
 	server_address.sin_port = htons(port);
 	server_address.sin_addr.s_addr = 0;
@@ -78,6 +86,7 @@ int serve(int port)
 		return 1;
 	}
 
+	/* setting additional configuration to socket */
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
 		fprintf(stderr, "Error in configuring socket.\n");
 		close(sockfd);
@@ -85,6 +94,7 @@ int serve(int port)
 	}
 	printf("Server started on %s:%d\n", inet_ntoa(server_address.sin_addr), port);
 	
+	/* starting worker */
 	if (worker(sockfd)) {
 		fprintf(stderr, "Cannot connect\n");
 		close(sockfd);
