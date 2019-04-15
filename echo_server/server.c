@@ -68,7 +68,7 @@ int serve(int port)
 	int yes = 1;
 
 	/* creating socket */
-	sockfd = socket(AF_INET, SOCK_STREAM, 0)
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	
 	if (sockfd == -1) {
 		fprintf(stderr, "Socket creation error.\n");
